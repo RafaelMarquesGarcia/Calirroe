@@ -4,28 +4,41 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: macos-latest
 
     steps:
+      # Paso 1: Obtener el código fuente
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Paso 2: Configurar Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      - name: Install PyInstaller
-        run: pip install pyinstaller
+      # Paso 3: Instalar dependencias necesarias
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
 
+      # Paso 4: Crear el ejecutable con recursos incluidos
       - name: Build executable
-        run: pyinstaller --onefile --windowed Calirroe.py
+        run: |
+          pyinstaller --onefile --windowed calirroe.py \
+          --add-data "icono.ico:." \
+          --add-data "icono.png:."
 
+      # Paso 5: Subir el ejecutable como artefacto
       - name: Upload executable
         uses: actions/upload-artifact@v3
         with:
           name: macOS-executable
-          path: dist/
+          path: dist/calirroe
