@@ -1,0 +1,44 @@
+name: Compilador Calírroe Linux (Multifichero)
+
+on:
+  push:
+    branches: [ main ]  # Se activa al subir cambios a la rama 'main'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-20.04  # Usamos 20.04 para asegurar que funcione en Linux antiguos y nuevos
+
+    steps:
+    - name: 1. Sincronizar Repositorio
+      uses: actions/checkout@v3
+
+    - name: 2. Instalar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 3. Preparar Entorno Linux (Tkinter y X11)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-tk libx11-dev
+        # Estas librerías son críticas para que la GUI y la captura de teclado funcionen
+
+    - name: 4. Instalar Librerías Python
+      run: |
+        pip install pynput Pillow pyinstaller
+
+    - name: 5. Compilar con PyInstaller
+      # IMPORTANTE: calirroe.py es el archivo principal. 
+      # PyInstaller buscará automáticamente menu.py, griego.py y latin.py.
+      run: |
+        pyinstaller --noconfirm --onefile --windowed \
+        --name "Calirroe-Linux" \
+        --add-data "icono.ico:." \
+        --add-data "icono.png:." \
+        calirroe.py
+
+    - name: 6. Subir Ejecutable Final
+      uses: actions/upload-artifact@v3
+      with:
+        name: Calirroe-App-Linux
+        path: dist/Calirroe-Linux
