@@ -2,18 +2,18 @@ name: Compilador Calírroe Linux (Multifichero)
 
 on:
   push:
-    branches: [ main ]  # Se activa al subir cambios a la rama 'main'
+    branches: [ main, master ]  # Compatible con ambos nombres de rama
 
 jobs:
   build-linux:
-    runs-on: ubuntu-latest  # Usamos 20.04 para asegurar que funcione en Linux antiguos y nuevos
+    runs-on: ubuntu-22.04  # Versión estable y moderna de Linux
 
     steps:
     - name: 1. Sincronizar Repositorio
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # Actualizado a v4
 
     - name: 2. Instalar Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5  # Actualizado a v5
       with:
         python-version: '3.10'
 
@@ -21,15 +21,13 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y python3-tk libx11-dev
-        # Estas librerías son críticas para que la GUI y la captura de teclado funcionen
 
     - name: 4. Instalar Librerías Python
       run: |
         pip install pynput Pillow pyinstaller
 
     - name: 5. Compilar con PyInstaller
-      # IMPORTANTE: calirroe.py es el archivo principal. 
-      # PyInstaller buscará automáticamente menu.py, griego.py y latin.py.
+      # Asegúrate de que calirroe.py sea tu archivo principal
       run: |
         pyinstaller --noconfirm --onefile --windowed \
         --name "Calirroe-Linux" \
@@ -38,7 +36,7 @@ jobs:
         calirroe.py
 
     - name: 6. Subir Ejecutable Final
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # <--- LA CLAVE: Cambiado de v3 a v4
       with:
         name: Calirroe-App-Linux
         path: dist/Calirroe-Linux
